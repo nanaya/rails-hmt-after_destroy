@@ -56,56 +56,70 @@ class Tag < ActiveRecord::Base
 end
 
 class BugTest < ActiveSupport::TestCase
-  def test_association_stuff
-    post = Post.create!
-    tags = 4.times.map { Tag.create! }
+  setup do
+    @post = Post.create!
+  end
 
-    # add first three tags
-    # create callback is fired three times
-    assert_difference 'Sign.count', 3 do
-      post.tags << tags[0]
-      post.tags << tags[1]
-      post.tags << tags[2]
-    end
-
-    # add the last tag
-    # create callback is fired
+  test "adding tags using <<" do
     assert_difference 'Sign.count', 1 do
-      post.update tags: tags
+      @post.tags << Tag.create!
     end
+  end
 
-    # remove tags[0]
-    # destroy callback is fired
+  test "adding tags using assignment" do
     assert_difference 'Sign.count', 1 do
-      post.tags.destroy(tags[0])
+      @post.update tags: [Tag.create!]
     end
+  end
 
-    # remove tags[3]
-    # destroy callback isn't fired
-    assert_difference 'Sign.count', 0 do
-    # assert_difference 'Sign.count', 1 do
-      post.update tag_ids: [tags[1].id, tags[2].id]
-    end
-
-    # remove tags[2]
-    # destroy callback isn't fired
-    assert_difference 'Sign.count', 0 do
-    # assert_difference 'Sign.count', 1 do
-      post.update tags: [tags[1]]
-    end
-
-    # remove tags[1], add tags[0]
-    # destroy callback isn't fired, create callback is fired
+  test "adding tags using tag_ids assignment" do
     assert_difference 'Sign.count', 1 do
-    # assert_difference 'Sign.count', 2 do
-      post.update tag_ids: [tags[0].id]
+      @post.update tag_ids: [Tag.create!.id]
     end
+  end
 
-    # remove tags[0], add tags[1]
-    # destroy callback isn't fired, create callback is fired
+  test "removing tags using tags.destroy" do
+    tags = 2.times.map { Tag.create! }
+    @post.update tags: tags
+
     assert_difference 'Sign.count', 1 do
-    # assert_difference 'Sign.count', 2 do
-      post.update tags: [tags[1]]
+      @post.tags.destroy(tags[0])
+    end
+  end
+
+  test "removing tags using tag_ids assignment" do
+    tags = 2.times.map { Tag.create! }
+    @post.update tags: tags
+
+    assert_difference 'Sign.count', 1 do
+      @post.update tag_ids: [tags[0].id]
+    end
+  end
+
+  test "removing tags using tags assignment" do
+    tags = 2.times.map { Tag.create! }
+    @post.update tags: tags
+
+    assert_difference 'Sign.count', 1 do
+      @post.update tags: [tags[0]]
+    end
+  end
+
+  test "removing and adding tags using tags assignment" do
+    tags = 2.times.map { Tag.create! }
+    @post.update tags: [tags[0]]
+
+    assert_difference 'Sign.count', 2 do
+      @post.update tags: [tags[1]]
+    end
+  end
+
+  test "removing and adding tags using tag_ids assignment" do
+    tags = 2.times.map { Tag.create! }
+    @post.update tags: [tags[0]]
+
+    assert_difference 'Sign.count', 2 do
+      @post.update tag_ids: [tags[1].id]
     end
   end
 end
