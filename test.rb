@@ -24,11 +24,17 @@ ActiveRecord::Schema.define do
   create_table :tags do |t|
   end
 
-  create_table :signs do |t|
+  create_table :create_signs do |t|
+  end
+
+  create_table :destroy_signs do |t|
   end
 end
 
-class Sign < ActiveRecord::Base
+class CreateSign < ActiveRecord::Base
+end
+
+class DestroySign < ActiveRecord::Base
 end
 
 class Post < ActiveRecord::Base
@@ -40,13 +46,17 @@ class PostsTag < ActiveRecord::Base
   belongs_to :post
   belongs_to :tag
 
-  after_destroy :create_sign
-  after_create :create_sign
+  after_destroy :create_destroy_sign
+  after_create :create_create_sign
 
   private
 
-  def create_sign
-    Sign.create
+  def create_create_sign
+    CreateSign.create
+  end
+
+  def create_destroy_sign
+    DestroySign.create
   end
 end
 
@@ -61,19 +71,19 @@ class BugTest < ActiveSupport::TestCase
   end
 
   test "adding tags using <<" do
-    assert_difference 'Sign.count', 1 do
+    assert_difference 'CreateSign.count', 1 do
       @post.tags << Tag.create!
     end
   end
 
   test "adding tags using assignment" do
-    assert_difference 'Sign.count', 1 do
+    assert_difference 'CreateSign.count', 1 do
       @post.update tags: [Tag.create!]
     end
   end
 
   test "adding tags using tag_ids assignment" do
-    assert_difference 'Sign.count', 1 do
+    assert_difference 'CreateSign.count', 1 do
       @post.update tag_ids: [Tag.create!.id]
     end
   end
@@ -82,7 +92,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: tags
 
-    assert_difference 'Sign.count', 1 do
+    assert_difference 'DestroySign.count', 1 do
       @post.tags.destroy(tags[0])
     end
   end
@@ -91,7 +101,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: tags
 
-    assert_difference 'Sign.count', 1 do
+    assert_difference 'DestroySign.count', 1 do
       @post.update tag_ids: [tags[0].id]
     end
   end
@@ -100,7 +110,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: tags
 
-    assert_difference 'Sign.count', 1 do
+    assert_difference 'DestroySign.count', 1 do
       @post.update tags: [tags[0]]
     end
   end
@@ -109,7 +119,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
-    assert_difference 'Sign.count', 2 do
+    assert_difference ['CreateSign.count', 'DestroySign.count'], 1 do
       @post.update tags: [tags[1]]
     end
   end
@@ -118,7 +128,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
-    assert_difference 'Sign.count', 2 do
+    assert_difference ['CreateSign.count', 'DestroySign.count'], 1 do
       @post.update tag_ids: [tags[1].id]
     end
   end
