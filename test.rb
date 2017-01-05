@@ -115,7 +115,7 @@ class BugTest < ActiveSupport::TestCase
     end
   end
 
-  test "removing and adding tags using tags assignment, create callback test" do
+  test "removing and adding tags using tags assignment, create callback" do
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
@@ -124,7 +124,7 @@ class BugTest < ActiveSupport::TestCase
     end
   end
 
-  test "removing and adding tags using tags assignment, destroy callback test" do
+  test "removing and adding tags using tags assignment, destroy callback" do
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
@@ -133,7 +133,7 @@ class BugTest < ActiveSupport::TestCase
     end
   end
 
-  test "removing and adding tags using tag_ids assignment, create callback test" do
+  test "removing and adding tags using tag_ids assignment, create callback" do
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
@@ -142,7 +142,7 @@ class BugTest < ActiveSupport::TestCase
     end
   end
 
-  test "removing and adding tags using tag_ids assignment, destroy callback test" do
+  test "removing and adding tags using tag_ids assignment, destroy callback" do
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
