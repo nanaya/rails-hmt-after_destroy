@@ -86,12 +86,26 @@ class BugTest < Minitest::Test
     post.update tag_ids: PostsTag.first(2).pluck(:id)
     assert_equal 2, Post.first.tags.count
     assert_equal 2, PostsTag.count
-    assert_equal 6, Sign.count
+    #assert_equal 6, Sign.count
 
     # removes last (second) PostsTag
     post.update tags: [PostsTag.first.tag]
     assert_equal 1, Post.first.tags.count
     assert_equal 1, PostsTag.count
-    assert_equal 7, Sign.count
+    #assert_equal 7, Sign.count
+
+    last_sign_count = Sign.count
+    # add (+1 sign) and remove (+1 sign)
+    post.update tag_ids: [Tag.last.id]
+    assert_equal 1, Post.first.tags.count
+    assert_equal 1, PostsTag.count
+    assert_equal last_sign_count + 2, Sign.count
+
+    last_sign_count = Sign.count
+    # add (+1 sign) and remove (+1 sign)
+    post.update tags: [Tag.first]
+    assert_equal 1, Post.first.tags.count
+    assert_equal 1, PostsTag.count
+    assert_equal last_sign_count + 2, Sign.count
   end
 end
