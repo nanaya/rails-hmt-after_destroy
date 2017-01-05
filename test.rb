@@ -55,57 +55,53 @@ class Tag < ActiveRecord::Base
   has_many :posts, through: :posts_tags
 end
 
-class BugTest < Minitest::Test
+class BugTest < ActiveSupport::TestCase
   def test_association_stuff
     post = Post.create!
+    tags = 4.times.map { Tag.create! }
 
-    post.tags << Tag.create!
-    post.tags << Tag.create!
-    post.tags << Tag.create!
-    assert_equal 3, Post.first.tags.count
-    assert_equal 3, PostsTag.count
-    assert_equal 3, Tag.count
-    # should call the create callback
-    assert_equal 3, Sign.count
-    assert_equal post.id, Tag.first.posts.first.id
+    assert_difference 'Sign.count', 3 do
+      post.tags << tags[0]
+      post.tags << tags[1]
+      post.tags << tags[2]
+    end
 
-    Tag.create!
-    post.update tags: Tag.first(4)
-    assert_equal 4, Post.first.tags.count
-    assert_equal 4, PostsTag.count
-    assert_equal 4, Tag.count
-    # should call the create callback
-    assert_equal 4, Sign.count
+    # add the last tag
+    assert_difference 'Sign.count', 1 do
+      post.update tags: tags
+    end
 
-    post.tags.destroy(Tag.first)
-    assert_equal 3, Post.first.tags.count
-    assert_equal 3, PostsTag.count
-    assert_equal 5, Sign.count
+    # remove tags[0]
+    assert_difference 'Sign.count', 1 do
+      post.tags.destroy(tags[0])
+    end
 
-    # removes last (third) PostsTag
-    post.update tag_ids: PostsTag.first(2).pluck(:id)
-    assert_equal 2, Post.first.tags.count
-    assert_equal 2, PostsTag.count
-    #assert_equal 6, Sign.count
+    # remove tags[3]
+    # destroy callback isn't fired
+    assert_difference 'Sign.count', 0 do
+    # assert_difference 'Sign.count', 1 do
+      post.update tag_ids: [tags[1].id, tags[2].id]
+    end
 
-    # removes last (second) PostsTag
-    post.update tags: [PostsTag.first.tag]
-    assert_equal 1, Post.first.tags.count
-    assert_equal 1, PostsTag.count
-    #assert_equal 7, Sign.count
+    # removes tags[2]
+    # destroy callback isn't fired
+    assert_difference 'Sign.count', 0 do
+    # assert_difference 'Sign.count', 1 do
+      post.update tags: [tags[1]]
+    end
 
-    last_sign_count = Sign.count
-    # add (+1 sign) and remove (+1 sign)
-    post.update tag_ids: [Tag.last.id]
-    assert_equal 1, Post.first.tags.count
-    assert_equal 1, PostsTag.count
-    assert_equal last_sign_count + 2, Sign.count
+    # removes tags[1], adds tags[0]
+    # destroy callback isn't fired, create callback is fired
+    assert_difference 'Sign.count', 1 do
+    # assert_difference 'Sign.count', 2 do
+      post.update tag_ids: [tags[0].id]
+    end
 
-    last_sign_count = Sign.count
-    # add (+1 sign) and remove (+1 sign)
-    post.update tags: [Tag.first]
-    assert_equal 1, Post.first.tags.count
-    assert_equal 1, PostsTag.count
-    assert_equal last_sign_count + 2, Sign.count
+    # removes tags[0], adds tags[1]
+    # destroy callback isn't fired, create callback is fired
+    assert_difference 'Sign.count', 1 do
+    # assert_difference 'Sign.count', 2 do
+      post.update tags: [tags[1]]
+    end
   end
 end
