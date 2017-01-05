@@ -1,3 +1,4 @@
-    source 'https://rubygems.org'
-    gem 'rails', github: 'rails/rails'
-    gem 'sqlite3'
+source 'https://rubygems.org'
+
+gem 'rails'
+gem 'sqlite3'

@@ -1,14 +1,7 @@
-unless File.exist?('Gemfile')
-  File.write('Gemfile', <<-GEMFILE)
-    source 'https://rubygems.org'
-    gem 'rails', github: 'rails/rails'
-    gem 'sqlite3'
-  GEMFILE
-
-  system 'bundle'
-end
+#!/usr/bin/env ruby
 
 require 'bundler'
+
 Bundler.setup(:default)
 
 require 'active_record'
@@ -65,23 +58,40 @@ end
 class BugTest < Minitest::Test
   def test_association_stuff
     post = Post.create!
-    post.tags << Tag.create!
-    post.tags << Tag.create!
 
-    assert_equal 2, Post.first.tags.count
-    assert_equal 2, PostsTag.count
-    assert_equal 2, Tag.count
-    assert_equal 2, Sign.count
+    post.tags << Tag.create!
+    post.tags << Tag.create!
+    post.tags << Tag.create!
+    assert_equal 3, Post.first.tags.count
+    assert_equal 3, PostsTag.count
+    assert_equal 3, Tag.count
+    # should call the create callback
+    assert_equal 3, Sign.count
     assert_equal post.id, Tag.first.posts.first.id
 
+    Tag.create!
+    post.update tags: Tag.first(4)
+    assert_equal 4, Post.first.tags.count
+    assert_equal 4, PostsTag.count
+    assert_equal 4, Tag.count
+    # should call the create callback
+    assert_equal 4, Sign.count
+
     post.tags.destroy(Tag.first)
+    assert_equal 3, Post.first.tags.count
+    assert_equal 3, PostsTag.count
+    assert_equal 5, Sign.count
+
+    # removes last (third) PostsTag
+    post.update tag_ids: PostsTag.first(2).pluck(:id)
+    assert_equal 2, Post.first.tags.count
+    assert_equal 2, PostsTag.count
+    assert_equal 6, Sign.count
+
+    # removes last (second) PostsTag
+    post.update tags: [PostsTag.first.tag]
     assert_equal 1, Post.first.tags.count
     assert_equal 1, PostsTag.count
-    assert_equal 3, Sign.count
-
-    post.update tags: []
-    assert_equal 0, Post.first.tags.count
-    assert_equal 0, PostsTag.count
-    assert_equal 4, Sign.count
+    assert_equal 7, Sign.count
   end
 end
