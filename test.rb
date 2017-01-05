@@ -87,21 +87,21 @@ class BugTest < ActiveSupport::TestCase
       post.update tag_ids: [tags[1].id, tags[2].id]
     end
 
-    # removes tags[2]
+    # remove tags[2]
     # destroy callback isn't fired
     assert_difference 'Sign.count', 0 do
     # assert_difference 'Sign.count', 1 do
       post.update tags: [tags[1]]
     end
 
-    # removes tags[1], adds tags[0]
+    # remove tags[1], add tags[0]
     # destroy callback isn't fired, create callback is fired
     assert_difference 'Sign.count', 1 do
     # assert_difference 'Sign.count', 2 do
       post.update tag_ids: [tags[0].id]
     end
 
-    # removes tags[0], adds tags[1]
+    # remove tags[0], add tags[1]
     # destroy callback isn't fired, create callback is fired
     assert_difference 'Sign.count', 1 do
     # assert_difference 'Sign.count', 2 do
