@@ -60,6 +60,8 @@ class BugTest < ActiveSupport::TestCase
     post = Post.create!
     tags = 4.times.map { Tag.create! }
 
+    # add first three tags
+    # create callback is fired three times
     assert_difference 'Sign.count', 3 do
       post.tags << tags[0]
       post.tags << tags[1]
@@ -67,11 +69,13 @@ class BugTest < ActiveSupport::TestCase
     end
 
     # add the last tag
+    # create callback is fired
     assert_difference 'Sign.count', 1 do
       post.update tags: tags
     end
 
     # remove tags[0]
+    # destroy callback is fired
     assert_difference 'Sign.count', 1 do
       post.tags.destroy(tags[0])
     end
