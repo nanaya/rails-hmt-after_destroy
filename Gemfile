@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
-gem 'rails'
-gem 'sqlite3'
+gem "rails"
+gem "sqlite3"

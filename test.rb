@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 
-require 'bundler'
+require "bundler"
 
 Bundler.setup(:default)
 
-require 'active_record'
-require 'minitest/autorun'
-require 'logger'
+require "active_record"
+require "minitest/autorun"
+require "logger"
 
 # This connection will do for database-independent bug reports.
-ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 ActiveRecord::Schema.define do
@@ -71,19 +71,19 @@ class BugTest < ActiveSupport::TestCase
   end
 
   test "adding tags using <<" do
-    assert_difference 'CreateSign.count', 1 do
+    assert_difference "CreateSign.count", 1 do
       @post.tags << Tag.create!
     end
   end
 
   test "adding tags using assignment" do
-    assert_difference 'CreateSign.count', 1 do
+    assert_difference "CreateSign.count", 1 do
       @post.update tags: [Tag.create!]
     end
   end
 
   test "adding tags using tag_ids assignment" do
-    assert_difference 'CreateSign.count', 1 do
+    assert_difference "CreateSign.count", 1 do
       @post.update tag_ids: [Tag.create!.id]
     end
   end
@@ -92,7 +92,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: tags
 
-    assert_difference 'DestroySign.count', 1 do
+    assert_difference "DestroySign.count", 1 do
       @post.tags.destroy(tags[0])
     end
   end
@@ -101,7 +101,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: tags
 
-    assert_difference 'DestroySign.count', 1 do
+    assert_difference "DestroySign.count", 1 do
       @post.update tag_ids: [tags[0].id]
     end
   end
@@ -110,7 +110,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: tags
 
-    assert_difference 'DestroySign.count', 1 do
+    assert_difference "DestroySign.count", 1 do
       @post.update tags: [tags[0]]
     end
   end
@@ -119,7 +119,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
-    assert_difference ['CreateSign.count', 'DestroySign.count'], 1 do
+    assert_difference ["CreateSign.count", "DestroySign.count"], 1 do
       @post.update tags: [tags[1]]
     end
   end
@@ -128,7 +128,7 @@ class BugTest < ActiveSupport::TestCase
     tags = 2.times.map { Tag.create! }
     @post.update tags: [tags[0]]
 
-    assert_difference ['CreateSign.count', 'DestroySign.count'], 1 do
+    assert_difference ["CreateSign.count", "DestroySign.count"], 1 do
       @post.update tag_ids: [tags[1].id]
     end
   end
